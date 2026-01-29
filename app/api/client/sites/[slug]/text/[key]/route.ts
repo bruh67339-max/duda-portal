@@ -1,6 +1,8 @@
 // GET /api/client/sites/[slug]/text/[key] - Get text content
 // PUT /api/client/sites/[slug]/text/[key] - Update text content
 
+export const runtime = 'nodejs';
+
 import { NextRequest } from 'next/server';
 import { verifyClientSiteAccess } from '@/lib/auth/middleware';
 import { rateLimit, getClientIp } from '@/lib/security/rate-limit';

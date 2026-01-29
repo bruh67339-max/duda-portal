@@ -1,6 +1,8 @@
 // GET /api/client/sites/[slug]/business-info - Get business info
 // PUT /api/client/sites/[slug]/business-info - Update business info
 
+export const runtime = 'nodejs';
+
 import { NextRequest } from 'next/server';
 import { verifyClientSiteAccess } from '@/lib/auth/middleware';
 import { rateLimit, getClientIp } from '@/lib/security/rate-limit';

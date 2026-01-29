@@ -2,6 +2,8 @@
 // PUT /api/client/sites/[slug]/collections/[key]/items/[itemId] - Update item
 // DELETE /api/client/sites/[slug]/collections/[key]/items/[itemId] - Delete item
 
+export const runtime = 'nodejs';
+
 import { NextRequest } from 'next/server';
 import { verifyClientSiteAccess } from '@/lib/auth/middleware';
 import { rateLimit, getClientIp } from '@/lib/security/rate-limit';

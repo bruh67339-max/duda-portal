@@ -1,6 +1,8 @@
 // GET /api/client/sites/[slug]/collections/[key]/items - List collection items
 // POST /api/client/sites/[slug]/collections/[key]/items - Create collection item
 
+export const runtime = 'nodejs';
+
 import { NextRequest } from 'next/server';
 import { verifyClientSiteAccess } from '@/lib/auth/middleware';
 import { rateLimit, getClientIp } from '@/lib/security/rate-limit';
