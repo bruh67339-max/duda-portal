@@ -56,7 +56,7 @@ export async function PUT(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId);
+    const permissions = await getSitePermissions(siteId, user.id);
     if (!permissions.can_edit_text) {
       throw new ForbiddenError('You do not have permission to edit text content');
     }

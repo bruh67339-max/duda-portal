@@ -194,17 +194,37 @@ export async function regenerateApiKey(id: string): Promise<string> {
 }
 
 /**
- * Get site permissions
+ * Get site permissions for a specific client
  */
-export async function getSitePermissions(siteId: string): Promise<SitePermissions> {
-  const { data, error } = await supabase
+export async function getSitePermissions(siteId: string, clientId?: string): Promise<SitePermissions> {
+  let query = supabase
     .from('site_permissions')
     .select('*')
-    .eq('site_id', siteId)
-    .single();
+    .eq('site_id', siteId);
+
+  if (clientId) {
+    query = query.eq('client_id', clientId);
+  }
+
+  const { data, error } = await query.single();
 
   if (error || !data) {
-    throw new NotFoundError('Site permissions not found');
+    // Return default permissions if not found (all false except basic read)
+    return {
+      id: '',
+      site_id: siteId,
+      client_id: clientId || '',
+      can_edit_business_info: false,
+      can_edit_text: false,
+      can_edit_images: false,
+      can_edit_collections: false,
+      can_add_collection_items: false,
+      can_delete_collection_items: false,
+      can_reorder_collection_items: false,
+      can_publish: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as SitePermissions;
   }
 
   return data;

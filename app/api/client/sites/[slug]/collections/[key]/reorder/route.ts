@@ -28,7 +28,7 @@ export async function PUT(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId);
+    const permissions = await getSitePermissions(siteId, user.id);
     if (!permissions.can_reorder_collection_items) {
       throw new ForbiddenError('You do not have permission to reorder collection items');
     }

@@ -17,7 +17,7 @@ export async function GET(
     const { slug } = await params;
 
     // Verify client authentication and site access
-    const { siteId } = await verifyClientSiteAccess(request, slug);
+    const { user, siteId } = await verifyClientSiteAccess(request, slug);
 
     // Rate limiting
     const ip = getClientIp(request);
@@ -29,7 +29,7 @@ export async function GET(
     // Fetch all content in parallel
     const [site, permissions, businessInfo, textContent, collections, images] = await Promise.all([
       getSiteBySlug(slug),
-      getSitePermissions(siteId),
+      getSitePermissions(siteId, user.id),
       getBusinessInfo(siteId),
       getTextContent(siteId),
       getCollections(siteId),

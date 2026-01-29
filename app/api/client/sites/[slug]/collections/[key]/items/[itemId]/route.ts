@@ -65,7 +65,7 @@ export async function PUT(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId);
+    const permissions = await getSitePermissions(siteId, user.id);
     if (!permissions.can_edit_collections) {
       throw new ForbiddenError('You do not have permission to edit collection items');
     }
@@ -138,7 +138,7 @@ export async function DELETE(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId);
+    const permissions = await getSitePermissions(siteId, user.id);
     if (!permissions.can_delete_collection_items) {
       throw new ForbiddenError('You do not have permission to delete collection items');
     }
