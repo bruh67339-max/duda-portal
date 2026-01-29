@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
-  const _router = useRouter();
   const [loading, setLoading] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
