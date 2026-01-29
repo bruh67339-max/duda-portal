@@ -53,11 +53,11 @@ interface Site {
 
 interface TextField {
   id: string;
-  field_key: string;
+  content_key: string;
   label: string;
-  field_type: string;
+  content_type: string;
   max_length: number | null;
-  display_order: number;
+  sort_order: number;
 }
 
 interface Collection {
@@ -69,10 +69,10 @@ interface Collection {
 
 interface ImageSlot {
   id: string;
-  slot_key: string;
+  image_key: string;
   label: string;
-  max_width: number | null;
-  max_height: number | null;
+  recommended_width: number | null;
+  recommended_height: number | null;
 }
 
 interface Permission {
@@ -151,10 +151,10 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
 
     // Fetch text fields
     const { data: fieldsData } = await supabase
-      .from("text_fields")
+      .from("text_content")
       .select("*")
       .eq("site_id", id)
-      .order("display_order");
+      .order("sort_order");
     if (fieldsData) setTextFields(fieldsData);
 
     // Fetch collections
@@ -166,9 +166,10 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
 
     // Fetch image slots
     const { data: imagesData } = await supabase
-      .from("image_slots")
+      .from("images")
       .select("*")
-      .eq("site_id", id);
+      .eq("site_id", id)
+      .order("sort_order");
     if (imagesData) setImageSlots(imagesData);
 
     // Fetch permissions
@@ -244,7 +245,7 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          field_key: newField.key,
+          content_key: newField.key,
           label: newField.label,
           max_length: newField.maxLength ? parseInt(newField.maxLength) : null,
         }),
@@ -300,14 +301,14 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
 
   const handleAddImageSlot = async () => {
     try {
-      const response = await fetch(`/api/admin/sites/${id}/image-slots`, {
+      const response = await fetch(`/api/admin/sites/${id}/images`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slot_key: newImage.key,
+          image_key: newImage.key,
           label: newImage.label,
-          max_width: newImage.width ? parseInt(newImage.width) : null,
-          max_height: newImage.height ? parseInt(newImage.height) : null,
+          recommended_width: newImage.width ? parseInt(newImage.width) : null,
+          recommended_height: newImage.height ? parseInt(newImage.height) : null,
         }),
       });
 
@@ -563,7 +564,7 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
                       <GripVertical className="w-4 h-4 text-slate-600 cursor-grab" />
                       <div>
                         <p className="font-medium text-white">{field.label}</p>
-                        <p className="text-sm text-slate-500">{field.field_key}</p>
+                        <p className="text-sm text-slate-500">{field.content_key}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -734,11 +735,11 @@ export default function SiteConfigPage({ params }: { params: Promise<{ id: strin
                   <div key={slot.id} className="p-4 flex items-center justify-between">
                     <div>
                       <p className="font-medium text-white">{slot.label}</p>
-                      <p className="text-sm text-slate-500">{slot.slot_key}</p>
+                      <p className="text-sm text-slate-500">{slot.image_key}</p>
                     </div>
-                    {(slot.max_width || slot.max_height) && (
+                    {(slot.recommended_width || slot.recommended_height) && (
                       <span className="text-sm text-slate-500">
-                        {slot.max_width}x{slot.max_height}
+                        {slot.recommended_width}x{slot.recommended_height}
                       </span>
                     )}
                   </div>
