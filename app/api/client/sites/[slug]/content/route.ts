@@ -29,7 +29,7 @@ export async function GET(
     // Fetch all content in parallel
     const [site, permissions, businessInfo, textContent, collections, images] = await Promise.all([
       getSiteBySlug(slug),
-      getSitePermissions(siteId, user.id),
+      getSitePermissions(siteId),
       getBusinessInfo(siteId),
       getTextContent(siteId),
       getCollections(siteId),

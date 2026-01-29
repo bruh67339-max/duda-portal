@@ -50,15 +50,6 @@ export async function PUT(
     // Verify client authentication and site access
     const { user, siteId } = await verifyClientSiteAccess(request, slug);
 
-    console.log('[DEBUG text/key PUT] Auth result:', {
-      userId: user.id,
-      userEmail: user.email,
-      userType: user.type,
-      siteId,
-      slug,
-      key,
-    });
-
     // Rate limiting
     const ip = getClientIp(request);
     const rateLimitResult = await rateLimit('client', ip);
@@ -67,13 +58,8 @@ export async function PUT(
     }
 
     // Check permissions
-    console.log('[DEBUG text/key PUT] Fetching permissions for siteId:', siteId, 'clientId:', user.id);
-    const permissions = await getSitePermissions(siteId, user.id);
-    console.log('[DEBUG text/key PUT] Permissions result:', JSON.stringify(permissions, null, 2));
-    console.log('[DEBUG text/key PUT] can_edit_text value:', permissions.can_edit_text, 'type:', typeof permissions.can_edit_text);
-
+    const permissions = await getSitePermissions(siteId);
     if (!permissions.can_edit_text) {
-      console.log('[DEBUG text/key PUT] Permission denied - can_edit_text is falsy');
       throw new ForbiddenError('You do not have permission to edit text content');
     }
 

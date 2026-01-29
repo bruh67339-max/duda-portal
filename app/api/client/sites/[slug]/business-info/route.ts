@@ -58,7 +58,7 @@ export async function PUT(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId, user.id);
+    const permissions = await getSitePermissions(siteId);
     if (!permissions.can_edit_business_info) {
       throw new ForbiddenError('You do not have permission to edit business info');
     }

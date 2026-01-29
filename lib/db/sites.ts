@@ -194,34 +194,21 @@ export async function regenerateApiKey(id: string): Promise<string> {
 }
 
 /**
- * Get site permissions for a specific client
+ * Get site permissions
+ * Note: Permissions are stored per site, not per client
  */
-export async function getSitePermissions(siteId: string, clientId?: string): Promise<SitePermissions> {
-  console.log('[DEBUG getSitePermissions] Called with siteId:', siteId, 'clientId:', clientId);
-
-  let query = supabase
+export async function getSitePermissions(siteId: string, _clientId?: string): Promise<SitePermissions> {
+  const { data, error } = await supabase
     .from('site_permissions')
     .select('*')
-    .eq('site_id', siteId);
-
-  if (clientId) {
-    query = query.eq('client_id', clientId);
-  }
-
-  const { data, error } = await query.single();
-
-  console.log('[DEBUG getSitePermissions] Query result:', {
-    data: data ? JSON.stringify(data) : null,
-    error: error ? { message: error.message, code: error.code, details: error.details } : null,
-  });
+    .eq('site_id', siteId)
+    .single();
 
   if (error || !data) {
-    console.log('[DEBUG getSitePermissions] No data found, returning default permissions (all false)');
-    // Return default permissions if not found (all false except basic read)
+    // Return default permissions if not found (all false)
     return {
       id: '',
       site_id: siteId,
-      client_id: clientId || '',
       can_edit_business_info: false,
       can_edit_text: false,
       can_edit_images: false,
@@ -235,7 +222,6 @@ export async function getSitePermissions(siteId: string, clientId?: string): Pro
     } as SitePermissions;
   }
 
-  console.log('[DEBUG getSitePermissions] Returning data with can_edit_text:', data.can_edit_text);
   return data;
 }
 

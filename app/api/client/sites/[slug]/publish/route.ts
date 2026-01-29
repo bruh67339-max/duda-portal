@@ -28,7 +28,7 @@ export async function POST(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId, user.id);
+    const permissions = await getSitePermissions(siteId);
     if (!permissions.can_publish) {
       throw new ForbiddenError('You do not have permission to publish changes');
     }

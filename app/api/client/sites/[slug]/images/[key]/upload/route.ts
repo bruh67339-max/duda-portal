@@ -35,7 +35,7 @@ export async function POST(
     }
 
     // Check permissions
-    const permissions = await getSitePermissions(siteId, user.id);
+    const permissions = await getSitePermissions(siteId);
     if (!permissions.can_edit_images) {
       throw new ForbiddenError('You do not have permission to upload images');
     }
