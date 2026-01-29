@@ -78,8 +78,9 @@ export default function MenuPage() {
 
     // Select first collection by default
     if (collectionsData && collectionsData.length > 0) {
-      setSelectedCollection(collectionsData[0]);
-      fetchItems(site.slug, collectionsData[0].collection_key);
+      const firstCollection = collectionsData[0]!;
+      setSelectedCollection(firstCollection);
+      fetchItems(site.slug, firstCollection.collection_key);
     }
 
     setLoading(false);

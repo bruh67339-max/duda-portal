@@ -3,15 +3,6 @@
 import type {
   Site,
   Client,
-  BusinessInfo,
-  TextContent,
-  Collection,
-  CollectionItem,
-  Image,
-  SitePermissions,
-  ActivityLog,
-  SecurityLog,
-  PublishHistory,
   CollectionFieldSchema,
 } from './database';
 
@@ -83,17 +74,17 @@ export interface PasswordChangeRequest {
 export interface CreateSiteRequest {
   name: string;
   slug: string;
-  replit_url?: string;
-  custom_domain?: string;
-  client_id?: string;
+  replit_url?: string | null;
+  custom_domain?: string | null;
+  client_id?: string | null;
 }
 
 export interface UpdateSiteRequest {
   name?: string;
   slug?: string;
-  replit_url?: string;
-  custom_domain?: string;
-  client_id?: string;
+  replit_url?: string | null;
+  custom_domain?: string | null;
+  client_id?: string | null;
   status?: 'draft' | 'published' | 'archived';
 }
 
@@ -105,15 +96,15 @@ export interface SiteWithClient extends Site {
 export interface CreateClientRequest {
   email: string;
   name: string;
-  company?: string;
-  phone?: string;
+  company?: string | null;
+  phone?: string | null;
   password?: string; // If not provided, generates invite
 }
 
 export interface UpdateClientRequest {
   name?: string;
-  company?: string;
-  phone?: string;
+  company?: string | null;
+  phone?: string | null;
   is_active?: boolean;
 }
 
@@ -123,8 +114,8 @@ export interface CreateTextFieldRequest {
   label: string;
   content?: string;
   content_type?: 'text' | 'rich_text' | 'html';
-  max_length?: number;
-  placeholder?: string;
+  max_length?: number | null;
+  placeholder?: string | null;
   sort_order?: number;
 }
 
@@ -132,8 +123,8 @@ export interface UpdateTextFieldRequest {
   label?: string;
   content?: string;
   content_type?: 'text' | 'rich_text' | 'html';
-  max_length?: number;
-  placeholder?: string;
+  max_length?: number | null;
+  placeholder?: string | null;
   sort_order?: number;
 }
 
@@ -141,23 +132,23 @@ export interface UpdateTextFieldRequest {
 export interface CreateCollectionRequest {
   collection_key: string;
   label: string;
-  description?: string;
+  description?: string | null;
   item_schema: Record<string, CollectionFieldSchema>;
   can_add?: boolean;
   can_delete?: boolean;
   can_reorder?: boolean;
-  max_items?: number;
+  max_items?: number | null;
   sort_order?: number;
 }
 
 export interface UpdateCollectionRequest {
   label?: string;
-  description?: string;
+  description?: string | null;
   item_schema?: Record<string, CollectionFieldSchema>;
   can_add?: boolean;
   can_delete?: boolean;
   can_reorder?: boolean;
-  max_items?: number;
+  max_items?: number | null;
   sort_order?: number;
 }
 
@@ -165,20 +156,20 @@ export interface UpdateCollectionRequest {
 export interface CreateImageSlotRequest {
   image_key: string;
   label: string;
-  description?: string;
-  recommended_width?: number;
-  recommended_height?: number;
+  description?: string | null;
+  recommended_width?: number | null;
+  recommended_height?: number | null;
   max_file_size_kb?: number;
   sort_order?: number;
 }
 
 export interface UpdateImageSlotRequest {
   label?: string;
-  description?: string;
-  url?: string;
-  alt_text?: string;
-  recommended_width?: number;
-  recommended_height?: number;
+  description?: string | null;
+  url?: string | null;
+  alt_text?: string | null;
+  recommended_width?: number | null;
+  recommended_height?: number | null;
   max_file_size_kb?: number;
   sort_order?: number;
 }
@@ -200,14 +191,14 @@ export interface UpdatePermissionsRequest {
 // ============================================
 
 export interface UpdateBusinessInfoRequest {
-  business_name?: string;
-  phone?: string;
-  email?: string;
-  address_street?: string;
-  address_city?: string;
-  address_state?: string;
-  address_zip?: string;
-  address_country?: string;
+  business_name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address_street?: string | null;
+  address_city?: string | null;
+  address_state?: string | null;
+  address_zip?: string | null;
+  address_country?: string | null;
   hours?: Record<string, string>;
   social_links?: Record<string, string>;
 }

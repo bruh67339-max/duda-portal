@@ -38,15 +38,17 @@ export async function POST(
     const supabase = getAdminClient();
 
     // Verify client exists
-    const { data: client, error: clientError } = await supabase
+    const { data: clientData, error: clientError } = await supabase
       .from('clients')
       .select('id, email')
       .eq('id', id)
-      .single();
+      .single() as { data: { id: string; email: string } | null; error: Error | null };
 
-    if (clientError || !client) {
+    if (clientError || !clientData) {
       throw new NotFoundError('Client not found');
     }
+
+    const clientEmail = clientData.email;
 
     // Update password using admin client
     const { error: updateError } = await supabase.auth.admin.updateUserById(
@@ -62,7 +64,7 @@ export async function POST(
     await logAdminAction(
       adminUser.id,
       'reset_client_password',
-      { client_id: id, client_email: client.email },
+      { client_id: id, client_email: clientEmail },
       request
     );
 

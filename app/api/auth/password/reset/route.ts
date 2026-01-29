@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       .from(table)
       .select('id, email, is_active')
       .ilike('email', email)
-      .single();
+      .single() as { data: { id: string; email: string; is_active: boolean } | null };
 
     // Always return success message to prevent email enumeration
     const successMsg = 'If an account exists with this email, a password reset link has been sent.';

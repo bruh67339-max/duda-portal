@@ -36,7 +36,7 @@ export async function createRefreshToken(
 
   const supabase = getAdminClient();
 
-  const { error } = await supabase.from('refresh_tokens').insert({
+  const { error } = await (supabase.from('refresh_tokens') as any).insert({
     user_id: userId,
     user_type: userType,
     token_hash: tokenHash,
@@ -63,7 +63,7 @@ export async function validateRefreshToken(
     .from('refresh_tokens')
     .select('id, user_id, user_type, expires_at, revoked_at')
     .eq('token_hash', tokenHash)
-    .single();
+    .single() as { data: { id: string; user_id: string; user_type: string; expires_at: string; revoked_at: string | null } | null; error: Error | null };
 
   if (error || !tokenRecord) {
     return null;
@@ -80,8 +80,7 @@ export async function validateRefreshToken(
   }
 
   // Update last_used_at
-  await supabase
-    .from('refresh_tokens')
+  await (supabase.from('refresh_tokens') as any)
     .update({ last_used_at: new Date().toISOString() })
     .eq('id', tokenRecord.id);
 
@@ -106,7 +105,7 @@ export async function rotateRefreshToken(
     .from('refresh_tokens')
     .select('id, user_id, user_type, expires_at, revoked_at')
     .eq('token_hash', tokenHash)
-    .single();
+    .single() as { data: { id: string; user_id: string; user_type: string; expires_at: string; revoked_at: string | null } | null; error: Error | null };
 
   if (error || !tokenRecord || tokenRecord.revoked_at) {
     return null;
@@ -117,8 +116,7 @@ export async function rotateRefreshToken(
   }
 
   // Revoke old token
-  await supabase
-    .from('refresh_tokens')
+  await (supabase.from('refresh_tokens') as any)
     .update({ revoked_at: new Date().toISOString() })
     .eq('id', tokenRecord.id);
 
@@ -142,8 +140,7 @@ export async function revokeRefreshToken(token: string): Promise<void> {
   const tokenHash = hashToken(token);
   const supabase = getAdminClient();
 
-  await supabase
-    .from('refresh_tokens')
+  await (supabase.from('refresh_tokens') as any)
     .update({ revoked_at: new Date().toISOString() })
     .eq('token_hash', tokenHash);
 }
@@ -158,8 +155,7 @@ export async function revokeAllUserTokens(
 ): Promise<void> {
   const supabase = getAdminClient();
 
-  await supabase
-    .from('refresh_tokens')
+  await (supabase.from('refresh_tokens') as any)
     .update({ revoked_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('user_type', userType)
@@ -172,8 +168,7 @@ export async function revokeAllUserTokens(
 export async function cleanupExpiredTokens(): Promise<number> {
   const supabase = getAdminClient();
 
-  const { data, error } = await supabase
-    .from('refresh_tokens')
+  const { data, error } = await (supabase.from('refresh_tokens') as any)
     .delete()
     .lt('expires_at', new Date().toISOString())
     .select('id');
@@ -196,8 +191,7 @@ export async function updateLastLogin(
   const supabase = getAdminClient();
   const table = userType === 'admin' ? 'admin_users' : 'clients';
 
-  await supabase
-    .from(table)
+  await (supabase.from(table) as any)
     .update({ last_login_at: new Date().toISOString() })
     .eq('id', userId);
 }
@@ -215,7 +209,7 @@ export async function incrementFailedLoginAttempts(
     .from('clients')
     .select('failed_login_attempts')
     .eq('id', userId)
-    .single();
+    .single() as { data: { failed_login_attempts: number } | null };
 
   const attempts = (client?.failed_login_attempts || 0) + 1;
   let lockedUntil: Date | null = null;
@@ -225,8 +219,7 @@ export async function incrementFailedLoginAttempts(
     lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
   }
 
-  await supabase
-    .from('clients')
+  await (supabase.from('clients') as any)
     .update({
       failed_login_attempts: attempts,
       locked_until: lockedUntil?.toISOString() || null,
@@ -242,8 +235,7 @@ export async function incrementFailedLoginAttempts(
 export async function resetFailedLoginAttempts(userId: string): Promise<void> {
   const supabase = getAdminClient();
 
-  await supabase
-    .from('clients')
+  await (supabase.from('clients') as any)
     .update({
       failed_login_attempts: 0,
       locked_until: null,

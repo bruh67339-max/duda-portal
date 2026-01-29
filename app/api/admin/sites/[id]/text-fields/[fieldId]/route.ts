@@ -27,27 +27,21 @@ export async function DELETE(
 
     const supabase = getAdminClient();
 
-    // Verify the field belongs to this site
-    const { data: field, error: fieldError } = await supabase
-      .from('text_fields')
-      .select('id, field_key')
+    // Verify the text content belongs to this site
+    const { data: textContent, error: fieldError } = await supabase
+      .from('text_content')
+      .select('id, content_key')
       .eq('id', fieldId)
       .eq('site_id', siteId)
-      .single();
+      .single() as { data: { id: string; content_key: string } | null; error: Error | null };
 
-    if (fieldError || !field) {
+    if (fieldError || !textContent) {
       throw new NotFoundError('Text field not found');
     }
 
-    // Delete any associated content first
-    await supabase
-      .from('text_content')
-      .delete()
-      .eq('field_id', fieldId);
-
-    // Delete the field
+    // Delete the text content
     const { error: deleteError } = await supabase
-      .from('text_fields')
+      .from('text_content')
       .delete()
       .eq('id', fieldId);
 
@@ -59,7 +53,7 @@ export async function DELETE(
     await logAdminAction(
       user.id,
       'delete_text_field',
-      { site_id: siteId, field_id: fieldId, field_key: field.field_key },
+      { site_id: siteId, field_id: fieldId, content_key: textContent.content_key },
       request
     );
 

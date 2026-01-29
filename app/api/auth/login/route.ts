@@ -6,7 +6,7 @@ import { rateLimit, getClientIp, createRateLimitKey } from '@/lib/security/rate-
 import { logSecurityEvent, getRequestContext } from '@/lib/security/logging';
 import { validateInput, loginSchema } from '@/lib/security/validation';
 import { successResponse, errorResponse } from '@/lib/utils/response';
-import { UnauthorizedError, ForbiddenError, RateLimitError, ValidationError } from '@/lib/utils/errors';
+import { UnauthorizedError, ForbiddenError, RateLimitError } from '@/lib/utils/errors';
 import {
   createRefreshToken,
   updateLastLogin,
@@ -62,7 +62,10 @@ export async function POST(request: NextRequest) {
       .from(table)
       .select('id, email, name, is_active' + (user_type === 'admin' ? ', role' : ', locked_until'))
       .eq('id', authData.user.id)
-      .single();
+      .single() as {
+        data: { id: string; email: string; name: string; is_active: boolean; role?: string; locked_until?: string } | null;
+        error: Error | null;
+      };
 
     if (userError || !userRecord) {
       await logSecurityEvent({
@@ -147,7 +150,7 @@ export async function POST(request: NextRequest) {
             .from('clients')
             .select('id')
             .ilike('email', body.email)
-            .single();
+            .single() as { data: { id: string } | null; error: Error | null };
 
           if (client) {
             const result = await incrementFailedLoginAttempts(client.id);

@@ -89,8 +89,7 @@ export async function createClient(
     throw new ConflictError('Client with this email already exists');
   }
 
-  const { data, error } = await supabase
-    .from('clients')
+  const { data, error } = await (supabase.from('clients') as any)
     .insert({
       id: authUserId, // Use the auth user ID
       email: input.email.toLowerCase(),
@@ -115,8 +114,7 @@ export async function updateClient(
   id: string,
   input: UpdateClientRequest
 ): Promise<Client> {
-  const { data, error } = await supabase
-    .from('clients')
+  const { data, error } = await (supabase.from('clients') as any)
     .update(input)
     .eq('id', id)
     .select()
@@ -137,8 +135,7 @@ export async function updateClient(
  * Deactivate a client (soft delete)
  */
 export async function deactivateClient(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('clients')
+  const { error } = await (supabase.from('clients') as any)
     .update({ is_active: false })
     .eq('id', id);
 
@@ -151,8 +148,7 @@ export async function deactivateClient(id: string): Promise<void> {
  * Reactivate a client
  */
 export async function reactivateClient(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('clients')
+  const { error } = await (supabase.from('clients') as any)
     .update({ is_active: true })
     .eq('id', id);
 
@@ -167,8 +163,7 @@ export async function reactivateClient(id: string): Promise<void> {
 export async function getClientWithSiteCount(
   id: string
 ): Promise<Client & { site_count: number }> {
-  const { data: client, error: clientError } = await supabase
-    .from('clients')
+  const { data: client, error: clientError } = await (supabase.from('clients') as any)
     .select('*')
     .eq('id', id)
     .single();
@@ -177,8 +172,7 @@ export async function getClientWithSiteCount(
     throw new NotFoundError('Client not found');
   }
 
-  const { count } = await supabase
-    .from('sites')
+  const { count } = await (supabase.from('sites') as any)
     .select('*', { count: 'exact', head: true })
     .eq('client_id', id)
     .neq('status', 'archived');

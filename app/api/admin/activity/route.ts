@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     // Get activity logs
     const { data, total } = await getActivityLogs(filters, pagination);
 
-    return paginatedResponse(data, total, pagination.page, pagination.limit);
+    return paginatedResponse(data, total ?? 0, pagination.page ?? 1, pagination.limit ?? 20);
   } catch (error) {
     return errorResponse(error, request);
   }

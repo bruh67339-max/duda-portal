@@ -42,7 +42,7 @@ export async function logActivity(params: LogActivityParams): Promise<void> {
 
   const userAgent = request?.headers.get('user-agent') || null;
 
-  const { error } = await supabase.from('activity_log').insert({
+  const { error } = await (supabase.from('activity_log') as any).insert({
     site_id: siteId,
     user_id: userId,
     user_type: userType,
@@ -158,8 +158,7 @@ export async function createPublishEntry(
   contentSnapshot: Record<string, unknown>,
   notes?: string
 ): Promise<PublishHistory> {
-  const { data, error } = await supabase
-    .from('publish_history')
+  const { data, error } = await (supabase.from('publish_history') as any)
     .insert({
       site_id: siteId,
       published_by: publishedBy,
@@ -250,19 +249,18 @@ export async function createContentSnapshot(
 ): Promise<Record<string, unknown>> {
   // Fetch all content in parallel
   const [businessInfo, textContent, collections, images] = await Promise.all([
-    supabase.from('business_info').select('*').eq('site_id', siteId).single(),
-    supabase.from('text_content').select('*').eq('site_id', siteId).order('sort_order'),
-    supabase.from('collections').select('*').eq('site_id', siteId).order('sort_order'),
-    supabase.from('images').select('*').eq('site_id', siteId).order('sort_order'),
+    (supabase.from('business_info') as any).select('*').eq('site_id', siteId).single(),
+    (supabase.from('text_content') as any).select('*').eq('site_id', siteId).order('sort_order'),
+    (supabase.from('collections') as any).select('*').eq('site_id', siteId).order('sort_order'),
+    (supabase.from('images') as any).select('*').eq('site_id', siteId).order('sort_order'),
   ]);
 
   // Fetch collection items for each collection
   const collectionItems: Record<string, unknown[]> = {};
 
   if (collections.data) {
-    for (const collection of collections.data) {
-      const { data: items } = await supabase
-        .from('collection_items')
+    for (const collection of collections.data as any[]) {
+      const { data: items } = await (supabase.from('collection_items') as any)
         .select('*')
         .eq('collection_id', collection.id)
         .order('sort_order');
@@ -274,10 +272,10 @@ export async function createContentSnapshot(
   return {
     business_info: businessInfo.data,
     text_content: textContent.data || [],
-    collections: collections.data?.map((c) => ({
+    collections: (collections.data as any[] || []).map((c: any) => ({
       ...c,
       items: collectionItems[c.collection_key] || [],
-    })) || [],
+    })),
     images: images.data || [],
     snapshot_at: new Date().toISOString(),
   };

@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') || undefined,
     });
 
-    const { page, limit } = pagination;
+    const page = pagination.page ?? 1;
+    const limit = pagination.limit ?? 20;
     const offset = (page - 1) * limit;
 
     const supabase = getAdminClient();

@@ -45,7 +45,7 @@ export async function GET(
       created_at: entry.created_at,
     }));
 
-    return paginatedResponse(summaryData, total, pagination.page, pagination.limit);
+    return paginatedResponse(summaryData, total ?? 0, pagination.page ?? 1, pagination.limit ?? 20);
   } catch (error) {
     return errorResponse(error, request);
   }

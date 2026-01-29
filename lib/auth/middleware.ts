@@ -53,7 +53,7 @@ export async function verifyAuth(request: Request): Promise<AuthContext> {
     .from('admin_users')
     .select('id, email, name, role, is_active')
     .eq('id', user.id)
-    .single();
+    .single() as { data: { id: string; email: string; name: string; role: 'super_admin' | 'admin' | 'editor'; is_active: boolean } | null };
 
   if (adminUser) {
     if (!adminUser.is_active) {
@@ -77,7 +77,7 @@ export async function verifyAuth(request: Request): Promise<AuthContext> {
     .from('clients')
     .select('id, email, name, is_active, locked_until')
     .eq('id', user.id)
-    .single();
+    .single() as { data: { id: string; email: string; name: string; is_active: boolean; locked_until: string | null } | null };
 
   if (clientUser) {
     if (!clientUser.is_active) {
@@ -160,7 +160,7 @@ export async function verifyClientSiteAccess(
     .from('sites')
     .select('id, client_id')
     .eq('slug', siteSlug)
-    .single();
+    .single() as { data: { id: string; client_id: string | null } | null; error: Error | null };
 
   if (error || !site) {
     throw new ForbiddenError('Site not found');
@@ -195,7 +195,7 @@ export async function verifyAdminSiteAccess(
     .from('sites')
     .select('id')
     .eq('id', siteId)
-    .single();
+    .single() as { data: { id: string } | null; error: Error | null };
 
   if (error || !site) {
     throw new ForbiddenError('Site not found');

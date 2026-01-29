@@ -1,6 +1,6 @@
 import { useContent } from './content-provider';
 import { cn } from '@/lib/utils';
-import type { BusinessInfo as BusinessInfoType, Address } from '@/lib/portal-content';
+import type { BusinessInfo as BusinessInfoType } from '@/lib/portal-content';
 
 /**
  * Hook to access business information from the portal.

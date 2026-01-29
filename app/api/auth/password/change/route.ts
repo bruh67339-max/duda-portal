@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Verify authentication
-    const { user, supabase: userSupabase } = await verifyAuth(request);
+    const { user } = await verifyAuth(request);
 
     // Parse and validate input
     const body = await request.json();
@@ -57,11 +57,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Update password_changed_at in user table
-    const table = user.type === 'admin' ? 'admin_users' : 'clients';
-    await adminSupabase
-      .from(table)
-      .update({ password_changed_at: new Date().toISOString() })
-      .eq('id', user.id);
+    if (user.type === 'admin') {
+      await (adminSupabase
+        .from('admin_users') as any)
+        .update({ password_changed_at: new Date().toISOString() })
+        .eq('id', user.id);
+    } else {
+      await (adminSupabase
+        .from('clients') as any)
+        .update({ password_changed_at: new Date().toISOString() })
+        .eq('id', user.id);
+    }
 
     // Revoke all refresh tokens (force re-login everywhere)
     await revokeAllUserTokens(user.id, user.type);

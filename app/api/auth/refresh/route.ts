@@ -7,7 +7,7 @@ import { logSecurityEvent, getRequestContext } from '@/lib/security/logging';
 import { validateInput, refreshTokenSchema } from '@/lib/security/validation';
 import { successResponse, errorResponse } from '@/lib/utils/response';
 import { UnauthorizedError, RateLimitError, ForbiddenError } from '@/lib/utils/errors';
-import { rotateRefreshToken, ACCESS_TOKEN_EXPIRY } from '@/lib/auth/session';
+import { rotateRefreshToken } from '@/lib/auth/session';
 
 export async function POST(request: NextRequest) {
   const context = getRequestContext(request);
@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
       .from(table)
       .select('id, email, name, is_active' + (result.userType === 'admin' ? ', role' : ', locked_until'))
       .eq('id', result.userId)
-      .single();
+      .single() as {
+        data: { id: string; email: string; name: string; is_active: boolean; role?: string; locked_until?: string } | null;
+      };
 
     if (!userRecord || !userRecord.is_active) {
       await logSecurityEvent({
@@ -72,26 +74,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate new access token using Supabase Admin
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: userRecord.email,
-    });
-
-    // Since we can't easily generate a new JWT, use a workaround:
-    // The client should use the refresh_token endpoint which returns a new session
-    // For this implementation, we'll sign in programmatically
-
-    // Actually, let's use the proper Supabase approach - create a session via admin
-    const { data: newSession, error: newSessionError } = await supabase.auth.admin.createUser({
-      email: userRecord.email,
-      email_confirm: true,
-      user_metadata: {},
-    });
-
-    // Better approach: Use supabase.auth.refreshSession or similar
-    // For now, return the new refresh token and let client re-login if needed
-
+    // Token refresh successful - log the event
     await logSecurityEvent({
       event_type: 'token_refresh',
       user_id: result.userId,

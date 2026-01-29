@@ -302,7 +302,7 @@ export async function reorderCollectionItems(
     .select('id')
     .eq('collection_id', collectionId);
 
-  const existingIds = new Set(items?.map((i) => i.id) || []);
+  const existingIds = new Set(items?.map((i: any) => i.id) || []);
 
   for (const id of itemIds) {
     if (!existingIds.has(id)) {

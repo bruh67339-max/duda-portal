@@ -70,11 +70,11 @@ function getRedis(): Redis {
 function getRateLimiter(type: RateLimitType): Ratelimit {
   if (!rateLimiters.has(type)) {
     const config = RATE_LIMITS[type];
-    const windowMs = WINDOW_MS[config.window];
+    const windowMs = WINDOW_MS[config.window]!;
 
     const limiter = new Ratelimit({
       redis: getRedis(),
-      limiter: Ratelimit.slidingWindow(config.requests, `${windowMs}ms`),
+      limiter: Ratelimit.slidingWindow(config.requests, `${windowMs}ms` as const),
       analytics: true,
       prefix: `ratelimit:${type}`,
     });

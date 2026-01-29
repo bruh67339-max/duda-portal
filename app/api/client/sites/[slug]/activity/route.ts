@@ -35,7 +35,7 @@ export async function GET(
     // Get activity logs
     const { data, total } = await getSiteActivityLogs(siteId, pagination);
 
-    return paginatedResponse(data, total, pagination.page, pagination.limit);
+    return paginatedResponse(data, total ?? 0, pagination.page ?? 1, pagination.limit ?? 20);
   } catch (error) {
     return errorResponse(error, request);
   }

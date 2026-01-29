@@ -3,8 +3,7 @@
 import { NextRequest } from 'next/server';
 import { verifyClientSiteAccess } from '@/lib/auth/middleware';
 import { getAdminClient } from '@/lib/supabase/admin';
-import { rateLimit, getClientIp } from '@/lib/security/rate-limit';
-import { sanitizeFilename } from '@/lib/security/sanitize';
+import { rateLimit } from '@/lib/security/rate-limit';
 import { successResponse, errorResponse } from '@/lib/utils/response';
 import { RateLimitError, ForbiddenError, ValidationError } from '@/lib/utils/errors';
 import { getSitePermissions } from '@/lib/db/sites';
@@ -29,8 +28,7 @@ export async function POST(
     // Verify client authentication and site access
     const { user, siteId } = await verifyClientSiteAccess(request, slug);
 
-    // Rate limiting for uploads (stricter)
-    const ip = getClientIp(request);
+    // Rate limiting for uploads (stricter, per user)
     const rateLimitResult = await rateLimit('upload', user.id);
     if (!rateLimitResult.success) {
       throw new RateLimitError();

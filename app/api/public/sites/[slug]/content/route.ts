@@ -50,7 +50,7 @@ export async function GET(
       .select('id, name, slug, status')
       .eq('slug', slug)
       .eq('api_key', apiKey)
-      .single();
+      .single() as { data: { id: string; name: string; slug: string; status: string } | null; error: Error | null };
 
     if (siteError || !site) {
       await logSecurityEvent({
@@ -74,12 +74,12 @@ export async function GET(
         .from('business_info')
         .select('*')
         .eq('site_id', site.id)
-        .single(),
+        .single() as any,
       supabase
         .from('text_content')
         .select('content_key, content')
         .eq('site_id', site.id)
-        .order('sort_order'),
+        .order('sort_order') as any,
       supabase
         .from('collections')
         .select(`
@@ -89,11 +89,11 @@ export async function GET(
           )
         `)
         .eq('site_id', site.id)
-        .order('sort_order'),
+        .order('sort_order') as any,
       supabase
         .from('images')
         .select('image_key, url, alt_text')
-        .eq('site_id', site.id),
+        .eq('site_id', site.id) as any,
     ]);
 
     // 7. Format response
@@ -120,19 +120,19 @@ export async function GET(
           }
         : null,
       text: Object.fromEntries(
-        (textContent.data || []).map((t) => [t.content_key, t.content])
+        (textContent.data || []).map((t: any) => [t.content_key, t.content])
       ),
       collections: Object.fromEntries(
-        (collections.data || []).map((c) => [
+        (collections.data || []).map((c: any) => [
           c.collection_key,
           ((c.collection_items as Array<{ id: string; data: Record<string, unknown>; sort_order: number; is_visible: boolean }>) || [])
-            .filter((item) => item.is_visible)
-            .sort((a, b) => a.sort_order - b.sort_order)
-            .map((item) => ({ id: item.id, ...item.data })),
+            .filter((item: any) => item.is_visible)
+            .sort((a: any, b: any) => a.sort_order - b.sort_order)
+            .map((item: any) => ({ id: item.id, ...item.data })),
         ])
       ),
       images: Object.fromEntries(
-        (images.data || []).map((i) => [
+        (images.data || []).map((i: any) => [
           i.image_key,
           { url: i.url, alt: i.alt_text },
         ])

@@ -193,7 +193,7 @@ export async function getCollection<T extends CollectionItem>(
  * });
  */
 export async function portalContentMiddleware(
-  req: any,
+  _req: any,
   res: any,
   next: () => void
 ): Promise<void> {
