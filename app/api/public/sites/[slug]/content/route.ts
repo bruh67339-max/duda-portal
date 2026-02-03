@@ -33,16 +33,34 @@ export async function GET(
 
     // 2. Validate API key
     const apiKey = request.headers.get('x-api-key');
+    console.log('[DEBUG public/content] API key from header:', apiKey);
     if (!apiKey) {
       throw new UnauthorizedError('API key required');
     }
 
     // 3. Validate slug format
+    console.log('[DEBUG public/content] Slug:', slug, 'Length:', slug.length);
     if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(slug) || slug.length < 2) {
+      console.log('[DEBUG public/content] Slug validation failed');
       throw new ValidationError('Invalid site identifier');
     }
 
     const supabase = getAdminClient();
+
+    // 4. First, let's check if the site exists at all
+    const { data: siteCheck } = await supabase
+      .from('sites')
+      .select('id, slug, api_key, status')
+      .eq('slug', slug)
+      .single() as any;
+
+    console.log('[DEBUG public/content] Site lookup by slug only:', {
+      found: !!siteCheck,
+      siteApiKey: siteCheck?.api_key,
+      providedApiKey: apiKey,
+      keysMatch: siteCheck?.api_key === apiKey,
+      status: siteCheck?.status,
+    });
 
     // 4. Verify API key and get site
     const { data: site, error: siteError } = await supabase
@@ -51,6 +69,11 @@ export async function GET(
       .eq('slug', slug)
       .eq('api_key', apiKey)
       .single() as { data: { id: string; name: string; slug: string; status: string } | null; error: Error | null };
+
+    console.log('[DEBUG public/content] Site with API key match:', {
+      found: !!site,
+      error: siteError?.message,
+    });
 
     if (siteError || !site) {
       await logSecurityEvent({
@@ -64,7 +87,9 @@ export async function GET(
     }
 
     // 5. Check if site is published
+    console.log('[DEBUG public/content] Site status:', site.status);
     if (site.status !== 'published') {
+      console.log('[DEBUG public/content] Site not published, rejecting');
       throw new NotFoundError('Site not found or invalid API key');
     }
 
